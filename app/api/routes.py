@@ -152,10 +152,7 @@ def ready(db: Session = Depends(get_db)):
             "Readiness check failed: %s",
             type(exc).__name__,
         )
-        raise HTTPException(
-            503,
-            "Application database/schema is not ready",
-        ) from exc
+        raise HTTPException(503, "Application database/schema is not ready") from exc
 
 
 @router.post("/documents/upload")
@@ -262,11 +259,7 @@ def upload(
             # Roll back this transaction, then return the committed winner.
             db.rollback()
 
-            existing = db.scalar(
-                select(Document).where(
-                    Document.file_hash == file_hash
-                )
-            )
+            existing = db.scalar(select(Document).where(Document.file_hash == file_hash))
 
             if existing is not None:
                 # If this request used a different filename, its temporary file
@@ -300,9 +293,7 @@ def upload(
 
         chunk_offset = 0
 
-        for vector_batch in embed_batches(
-            (c.text for c in chunks)
-        ):
+        for vector_batch in embed_batches((c.text for c in chunks)):
             batch_chunks = chunks[
                 chunk_offset:chunk_offset + len(vector_batch)
             ]
@@ -399,10 +390,7 @@ def upload(
         if final_path != staging_path:
             final_path.unlink(missing_ok=True)
 
-        raise HTTPException(
-            422,
-            str(exc),
-        ) from exc
+        raise HTTPException(422, str(exc)) from exc
 
     except Exception as exc:
         db.rollback()
